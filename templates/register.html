@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Registro | HealNet</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
+</head>
+<body>
+  <div class="hn-container">
+    <div class="left-panel">
+      <div class="brand-wrap">
+        <h1 class="brand-title">HealNet</h1>
+        <h3 class="brand-sub">Crea tu cuenta en HealNet</h3>
+        <p class="brand-desc">Empieza a gestionar tu salud de forma fácil y segura.</p>
+      </div>
+      <small class="copyright">Copyright 2025</small>
+    </div>
+
+    <div class="right-panel">
+      <a class="back-link" href="#">← Volver al Inicio</a>
+      <p class="member-link">¿Ya soy miembro? <a href="{{ url_for('login') }}">Iniciar sesión ahora</a></p>
+
+      <div class="form-area">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo">
+        <h2 class="main-title">Conviértete en miembro de HealNet</h2>
+        <p class="small-sub">LLEVA TU SALUD AL SIGUIENTE NIVEL</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="flashes">
+              {% for category, message in messages %}
+                <div class="flash {{ category }}">{{ message }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('register') }}" class="hn-form">
+          <div class="input-row">
+            <input type="text" name="name" placeholder="Johnson Doe" required>
+          </div>
+
+          <div class="input-row">
+            <input type="email" name="email" placeholder="example@email.com" required>
+          </div>
+
+          <div class="input-row password-row">
+            <input id="reg-password" type="password" name="password" placeholder="********" required>
+            <button type="button" class="show-btn" data-target="reg-password">SHOW</button>
+          </div>
+
+          <button type="submit" class="cta-btn">Hazte miembro →</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/toggle-password.js') }}"></script>
+</body>
+</html>
