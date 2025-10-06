@@ -31,20 +31,20 @@ def index():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        name = request.form.get('name', '').strip()
-        email = request.form.get('email', '').strip().lower()
-        password = request.form.get('password', '')
+        name = request.form.get('nombre', '').strip()  
+        email = request.form.get('correo', '').strip().lower()  
+        password = request.form.get('contraseña', '')  
 
         if not (name and email and password):
             flash("Por favor completa todos los campos", "danger")
             return redirect(url_for('register'))
 
-        if User.query.filter_by(email=email).first():
+        if User.query.filter_by(correo=email).first(): 
             flash("El correo ya está registrado", "danger")
             return redirect(url_for("register"))
 
-        user = User(username=name, email=email)
-        user.set_password(password)
+        user = User(nombre=name, correo=email)  
+        user.set_contraseña(password)  
         db.session.add(user)
         db.session.commit()
 
@@ -54,14 +54,14 @@ def register():
     return render_template('register.html')
 
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        email = request.form.get('email', '').strip().lower()
-        password = request.form.get('password', '')
-
-        user = User.query.filter_by(email=email).first()
-        if user and user.check_password(password):
+        email = request.form.get('correo', '').strip().lower()  
+        password = request.form.get('contraseña', '')  
+        user = User.query.filter_by(correo=email).first() 
+        if user and user.check_contraseña(password): 
             login_user(user)
             flash("Bienvenido a HealNet", "success")
             return redirect(url_for('dashboard'))
@@ -76,7 +76,7 @@ def login():
 @login_required
 def dashboard():
     # aquí ponerías un template real; por ahora respuesta simple
-    return f"Hola {current_user.username}, esto es tu dashboard privado."
+    return f"Hola {current_user.nombre}, esto es tu dashboard privado."
 
 @app.route('/logout')
 @login_required
