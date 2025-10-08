@@ -19,8 +19,8 @@
     </div>
 
     <div class="right-panel">
-      <a class="back-link" href="#">← Volver al Inicio</a>
-      <p class="member-link">¿Ya soy miembro? <a href="{{ url_for('login') }}">Iniciar sesión ahora</a></p>
+      <a class="back-link" href="{{ url_for('auth.index') }}">← Volver al Inicio</a>
+      <p class="member-link">¿Ya soy miembro? <a href="{{ url_for('auth.login') }}">Iniciar sesión ahora</a></p>
 
       <div class="form-area">
         <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo">
@@ -37,7 +37,7 @@
           {% endif %}
         {% endwith %}
 
-        <form method="POST" action="{{ url_for('register') }}" class="hn-form">
+        <form method="POST" action="{{ url_for('auth.register') }}" class="hn-form">
           <div class="input-row">
             <input type="text" name="nombre" placeholder="Johnson Doe" required>
           </div>
@@ -47,7 +47,7 @@
           </div>
 
           <div class="input-row password-row">
-            <input id="reg-password" type="password" name="contraseña" placeholder="********" required>
+            <input id="reg-password" type="password" name="contraseña" placeholder="********" required minlength="6">
             <button type="button" class="show-btn" data-target="reg-password">SHOW</button>
           </div>
 

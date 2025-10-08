@@ -1,15 +1,19 @@
-// toggle-password.js
-document.addEventListener('click', function(e){
-  if (e.target && e.target.classList.contains('show-btn')) {
-    const targetId = e.target.getAttribute('data-target');
-    const input = document.getElementById(targetId);
-    if (!input) return;
-    if (input.type === 'password') {
-      input.type = 'text';
-      e.target.textContent = 'HIDE';
-    } else {
-      input.type = 'password';
-      e.target.textContent = 'SHOW';
-    }
-  }
+// toggle-password.js - Mostrar/Ocultar contraseñas
+document.addEventListener('DOMContentLoaded', function() {
+  const showButtons = document.querySelectorAll('.show-btn');
+  
+  showButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const targetId = this.getAttribute('data-target');
+      const passwordInput = document.getElementById(targetId);
+      
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        this.textContent = 'HIDE';
+      } else {
+        passwordInput.type = 'password';
+        this.textContent = 'SHOW';
+      }
+    });
+  });
 });

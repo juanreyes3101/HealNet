@@ -19,8 +19,8 @@
     </div>
 
     <div class="right-panel">
-      <a class="back-link" href="#">← Volver al Inicio</a>
-      <p class="member-link">¿Aún no eres miembro? <a href="{{ url_for('register') }}">Únete Ahora</a></p>
+      <a class="back-link" href="{{ url_for('auth.index') }}">← Volver al Inicio</a>
+      <p class="member-link">¿Aún no eres miembro? <a href="{{ url_for('auth.register') }}">Únete Ahora</a></p>
 
       <div class="form-area">
         <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo">
@@ -37,7 +37,7 @@
           {% endif %}
         {% endwith %}
 
-        <form method="POST" action="{{ url_for('login') }}" class="hn-form">
+        <form method="POST" action="{{ url_for('auth.login') }}" class="hn-form">
           <div class="input-row">
             <input type="email" name="correo" placeholder="example@email.com" required>
           </div>
