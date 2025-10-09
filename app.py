@@ -1,7 +1,8 @@
 from flask import Flask
 from extensions import db, bcrypt, login_manager
 from models.user import User
-from models.post import Post  # Importamos el modelo Post
+from models.post import Post
+from models import User, Cita, HistorialMedico, Post 
 
 def create_app():
     app = Flask(__name__)
@@ -30,12 +31,17 @@ def create_app():
         print("✅ Base de datos creada/actualizada correctamente")
     
     # Registrar Blueprints
+    
     from routes.auth import auth
     from routes.main import main
-    
+    from routes.public import public
+    from routes.admin import admin  # ← AGREGAR
+
     app.register_blueprint(auth)
     app.register_blueprint(main)
-    
+    app.register_blueprint(public)
+    app.register_blueprint(admin)  # ← AGREGAR  # ← AGREGAR ESTA LÍNEA
+        
     return app
 
 if __name__ == '__main__':

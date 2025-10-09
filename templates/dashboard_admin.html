@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Panel Admin | HealNet</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}" />
+
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo-admin">
+            <span>🏥</span> HealNet Admin
+        </div>
+        
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="{{ url_for('admin.dashboard') }}" class="nav-link active">
+                    <span class="icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('admin.usuarios') }}" class="nav-link">
+                    <span class="icon">👥</span>
+                    <span>Gestionar Usuarios</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('admin.calendario') }}" class="nav-link">
+                    <span class="icon">📅</span>
+                    <span>Calendario de Citas</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <span class="icon">📝</span>
+                    <span>Posts & Noticias</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <span class="icon">⚙️</span>
+                    <span>Configuración</span>
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <!-- TOP BAR -->
+        <div class="top-bar">
+            <div class="welcome">
+                <h1>Bienvenido, {{ current_user.nombre }} 👋</h1>
+                <p>Panel de Control del Administrador</p>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">{{ current_user.nombre[0].upper() }}</div>
+                <a href="{{ url_for('auth.logout') }}" class="logout-btn">Cerrar Sesión</a>
+            </div>
+        </div>
+
+        <!-- MENSAJES FLASH -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- ESTADÍSTICAS -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon blue">👥</div>
+                <div class="stat-info">
+                    <h3>{{ stats.total_usuarios }}</h3>
+                    <p>Total Usuarios</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon green">🏥</div>
+                <div class="stat-info">
+                    <h3>{{ stats.total_pacientes }}</h3>
+                    <p>Pacientes</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon purple">👨‍⚕️</div>
+                <div class="stat-info">
+                    <h3>{{ stats.total_doctores }}</h3>
+                    <p>Doctores</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon orange">⚙️</div>
+                <div class="stat-info">
+                    <h3>{{ stats.total_admins }}</h3>
+                    <p>Administradores</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon cyan">📅</div>
+                <div class="stat-info">
+                    <h3>{{ stats.total_citas }}</h3>
+                    <p>Citas Totales</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon red">⏳</div>
+                <div class="stat-info">
+                    <h3>{{ stats.citas_pendientes }}</h3>
+                    <p>Citas Pendientes</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ÚLTIMOS USUARIOS REGISTRADOS -->
+        <div class="content-section">
+            <div class="section-header">
+                <h2>📋 Últimos Usuarios Registrados</h2>
+                <a href="{{ url_for('admin.usuarios') }}" style="color: #3b82f6; text-decoration: none; font-weight: 600;">Ver todos →</a>
+            </div>
+
+            {% if ultimos_usuarios %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Correo</th>
+                        <th>Rol</th>
+                        <th>Registrado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for usuario in ultimos_usuarios %}
+                    <tr>
+                        <td><strong>{{ usuario.nombre }}</strong></td>
+                        <td>{{ usuario.correo }}</td>
+                        <td><span class="badge {{ usuario.rol }}">{{ usuario.rol }}</span></td>
+                        <td>{{ usuario.creado_en.strftime('%d/%m/%Y') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">📭</div>
+                <p>No hay usuarios registrados aún</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- PRÓXIMAS CITAS -->
+        <div class="content-section">
+            <div class="section-header">
+                <h2>📅 Próximas Citas</h2>
+                <a href="{{ url_for('admin.calendario') }}" style="color: #3b82f6; text-decoration: none; font-weight: 600;">Ver calendario →</a>
+            </div>
+
+            {% if proximas_citas %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Paciente</th>
+                        <th>Doctor</th>
+                        <th>Fecha y Hora</th>
+                        <th>Motivo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cita in proximas_citas %}
+                    <tr>
+                        <td><strong>{{ cita.paciente.nombre }}</strong></td>
+                        <td>Dr. {{ cita.doctor.nombre }}</td>
+                        <td>{{ cita.fecha_hora.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td>{{ cita.motivo }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">📭</div>
+                <p>No hay citas programadas</p>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+</body>
+</html>

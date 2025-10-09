@@ -52,29 +52,30 @@ def register():
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
-    """Inicio de sesión de usuarios"""
     if current_user.is_authenticated:
+        # Redirigir según rol
+        if current_user.is_admin():
+            return redirect(url_for('admin.dashboard'))
         return redirect(url_for('main.dashboard'))
-    
+        
     if request.method == 'POST':
         correo = request.form.get('correo', '').strip().lower()
         contraseña = request.form.get('contraseña', '')
-        remember = request.form.get('remember', False)
-        
-        usuario = User.query.filter_by(correo=correo).first()
-        
-        if usuario and usuario.check_contraseña(contraseña):
-            login_user(usuario, remember=remember)
-            flash(f'Bienvenido/a {usuario.nombre}!', 'success')
-            
-            # Redirigir a la página que intentaba acceder o al dashboard
-            next_page = request.args.get('next')
-            return redirect(next_page) if next_page else redirect(url_for('main.dashboard'))
-        else:
-            flash('Correo o contraseña incorrectos', 'danger')
-    
-    return render_template('login.html')
 
+        user = User.query.filter_by(correo=correo).first()
+        if user and user.check_contraseña(contraseña):
+            login_user(user)
+            flash(f"Bienvenido, {user.nombre}", "success")
+            
+            # Redirigir según rol
+            if user.is_admin():
+                return redirect(url_for('admin.dashboard'))
+            return redirect(url_for('main.dashboard'))
+        else:
+            flash("Correo o contraseña incorrectos", "danger")
+            return redirect(url_for('auth.login'))
+
+    return render_template('login.html')
 @auth.route('/logout')
 def logout():
     """Cierre de sesión"""
