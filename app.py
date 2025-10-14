@@ -1,14 +1,12 @@
 from flask import Flask
 from extensions import db, bcrypt, login_manager
-from models.user import User
-from models.post import Post
 from models import User, Cita, HistorialMedico, Post 
 
 def create_app():
     app = Flask(__name__)
     
     # Configuración
-    app.config['SECRET_KEY'] = "clave_super_secreta_para_dev"
+    app.config['SECRET_KEY'] = "juanreyes_06"
     app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///healnet.db"
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
@@ -25,7 +23,7 @@ def create_app():
     def load_user(user_id):
         return User.query.get(int(user_id))
     
-    # Crear tablas (incluyendo Posts)
+    # Crear tablas
     with app.app_context():
         db.create_all()
         print("✅ Base de datos creada/actualizada correctamente")
@@ -35,12 +33,12 @@ def create_app():
     from routes.auth import auth
     from routes.main import main
     from routes.public import public
-    from routes.admin import admin  # ← AGREGAR
+    from routes.admin import admin  
 
     app.register_blueprint(auth)
     app.register_blueprint(main)
     app.register_blueprint(public)
-    app.register_blueprint(admin)  # ← AGREGAR  # ← AGREGAR ESTA LÍNEA
+    app.register_blueprint(admin)  
         
     return app
 

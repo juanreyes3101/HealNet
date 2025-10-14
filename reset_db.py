@@ -8,7 +8,7 @@ from models import User, Cita, HistorialMedico, Post
 
 # Crear app temporal
 app = Flask(__name__)
-app.config['SECRET_KEY'] = "clave_super_secreta_para_dev"
+app.config['SECRET_KEY'] = "juanreyes_06"
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///healnet.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 

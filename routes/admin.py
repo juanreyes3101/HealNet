@@ -75,7 +75,7 @@ def usuarios():
     
     usuarios = query.order_by(User.creado_en.desc()).all()
     
-    return render_template('admin/usuarios.html', 
+    return render_template('usuarios.html', 
                          usuarios=usuarios,
                          rol_filter=rol_filter,
                          buscar=buscar)

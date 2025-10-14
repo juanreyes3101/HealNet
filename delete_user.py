@@ -7,9 +7,9 @@ def eliminar_usuario(correo):
         if user:
             db.session.delete(user)
             db.session.commit()
-            print(f"✓ Usuario {user.nombre} ({correo}) eliminado")
+            print(f"Usuario {user.nombre} ({correo}) eliminado")
         else:
-            print(f"✗ No se encontró usuario con correo {correo}")
+            print(f"No se encontró usuario con correo {correo}")
 
 if __name__ == "__main__":
     correo = input("Ingresa el correo del usuario a eliminar: ")

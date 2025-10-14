@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Gestionar Usuarios | HealNet Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/usuarios.css') }}" />
+
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="logo-admin">
+            <span>🏥</span> HealNet Admin
+        </div>
+        
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="{{ url_for('admin.dashboard') }}" class="nav-link">
+                    <span>📊</span> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('admin.usuarios') }}" class="nav-link active">
+                    <span>👥</span> Gestionar Usuarios
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('admin.calendario') }}" class="nav-link">
+                    <span>📅</span> Calendario de Citas
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <div class="top-bar">
+            <div class="welcome">
+                <h1>👥 Gestión de Usuarios</h1>
+            </div>
+            <a href="{{ url_for('auth.logout') }}" class="logout-btn">Cerrar Sesión</a>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- TABS -->
+        <div class="tabs-container">
+            <div class="tabs-header">
+                <button class="tab-btn active" onclick="switchTab('lista')">
+                    📋 Lista de Usuarios
+                </button>
+                <button class="tab-btn" onclick="switchTab('crear')">
+                    ➕ Crear Usuario
+                </button>
+            </div>
+
+            <!-- TAB: LISTA DE USUARIOS -->
+            <div id="tab-lista" class="tab-content active">
+                <div class="filters">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="🔍 Buscar por nombre o correo..." onkeyup="filterTable()">
+                    </div>
+                    <select class="filter-select" id="roleFilter" onchange="filterTable()">
+                        <option value="todos">Todos los roles</option>
+                        <option value="admin">Administradores</option>
+                        <option value="doctor">Doctores</option>
+                        <option value="paciente">Pacientes</option>
+                    </select>
+                </div>
+
+                {% if usuarios %}
+                <table id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Correo</th>
+                            <th>Rol</th>
+                            <th>Teléfono</th>
+                            <th>Estado</th>
+                            <th>Registrado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for usuario in usuarios %}
+                        <tr data-role="{{ usuario.rol }}">
+                            <td><strong>{{ usuario.nombre }}</strong></td>
+                            <td>{{ usuario.correo }}</td>
+                            <td><span class="badge {{ usuario.rol }}">{{ usuario.rol }}</span></td>
+                            <td>{{ usuario.numero or '-' }}</td>
+                            <td>
+                                <span class="status-indicator {{ 'active' if usuario.activo else 'inactive' }}"></span>
+                                {{ 'Activo' if usuario.activo else 'Inactivo' }}
+                            </td>
+                            <td>{{ usuario.creado_en.strftime('%d/%m/%Y') }}</td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="btn-edit" onclick="editarUsuario({{ usuario.id }}, '{{ usuario.nombre }}', '{{ usuario.correo }}', '{{ usuario.rol }}', '{{ usuario.numero or '' }}', '{{ usuario.especialidad or '' }}', '{{ usuario.licencia_medica or '' }}', {{ 'true' if usuario.activo else 'false' }})">
+                                        ✏️ Editar
+                                    </button>
+                                    {% if usuario.id != current_user.id %}
+                                    <button class="btn-delete" onclick="confirmarEliminar({{ usuario.id }}, '{{ usuario.nombre }}')">
+                                        🗑️ Eliminar
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">📭</div>
+                    <p>No hay usuarios registrados aún</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- TAB: CREAR USUARIO -->
+            <div id="tab-crear" class="tab-content">
+                <h2 style="margin-bottom: 25px; color: #1e3a8a;">➕ Crear Nuevo Usuario</h2>
+                
+                <form method="POST" action="{{ url_for('admin.crear_usuario') }}">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Nombre Completo <span class="required">*</span></label>
+                            <input type="text" name="nombre" required placeholder="Juan Pérez">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Correo Electrónico <span class="required">*</span></label>
+                            <input type="email" name="correo" required placeholder="juan@ejemplo.com">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Contraseña <span class="required">*</span></label>
+                            <input type="password" name="contraseña" required placeholder="********">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Rol <span class="required">*</span></label>
+                            <select name="rol" id="rolSelect" onchange="toggleDoctorFields()" required>
+                                <option value="paciente">Paciente</option>
+                                <option value="doctor">Doctor</option>
+                                <option value="admin">Administrador</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Teléfono</label>
+                            <input type="tel" name="numero" placeholder="+57 300 123 4567">
+                        </div>
+                    </div>
+
+                    <!-- CAMPOS ADICIONALES PARA DOCTORES -->
+                    <div id="doctorFields" class="doctor-fields">
+                        <h3 style="margin: 25px 0 15px; color: #1e3a8a;">Información del Doctor</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Especialidad</label>
+                                <input type="text" name="especialidad" placeholder="Cardiología, Pediatría, etc.">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Licencia Médica</label>
+                                <input type="text" name="licencia" placeholder="12345678">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">✅ Crear Usuario</button>
+                        <button type="reset" class="btn-cancel">🔄 Limpiar Formulario</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL EDITAR USUARIO -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>✏️ Editar Usuario</h3>
+            </div>
+            
+            <form id="editForm" method="POST">
+                <input type="hidden" id="edit_user_id" name="user_id">
+                
+                <div class="form-group">
+                    <label>Nombre Completo <span class="required">*</span></label>
+                    <input type="text" id="edit_nombre" name="nombre" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Correo Electrónico <span class="required">*</span></label>
+                    <input type="email" id="edit_correo" name="correo" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Rol <span class="required">*</span></label>
+                    <select id="edit_rol" name="rol" onchange="toggleEditDoctorFields()" required>
+                        <option value="paciente">Paciente</option>
+                        <option value="doctor">Doctor</option>
+                        <option value="admin">Administrador</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Teléfono</label>
+                    <input type="tel" id="edit_numero" name="numero">
+                </div>
+
+                <div id="editDoctorFields" class="doctor-fields">
+                    <div class="form-group">
+                        <label>Especialidad</label>
+                        <input type="text" id="edit_especialidad" name="especialidad">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Licencia Médica</label>
+                        <input type="text" id="edit_licencia" name="licencia">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Nueva Contraseña (dejar en blanco para no cambiar)</label>
+                    <input type="password" id="edit_password" name="nueva_contraseña" placeholder="********">
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="edit_activo" name="activo">
+                        Usuario Activo
+                    </label>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">💾 Guardar Cambios</button>
+                    <button type="button" class="btn-cancel" onclick="cerrarModal()">❌ Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL CONFIRMAR ELIMINACIÓN -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>⚠️ Confirmar Eliminación</h3>
+            </div>
+            
+            <p style="margin-bottom: 20px;">¿Estás seguro de que deseas eliminar al usuario <strong id="deleteUserName"></strong>?</p>
+            <p style="color: #dc2626; font-weight: 600;">Esta acción no se puede deshacer.</p>
+
+            <form id="deleteForm" method="POST">
+                <div class="form-actions">
+                    <button type="submit" class="btn-delete" style="padding: 12px 24px;">🗑️ Sí, Eliminar</button>
+                    <button type="button" class="btn-cancel" onclick="cerrarModalDelete()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/admin_usuarios.js') }}"></script>
+
+</body>
+</html>
