@@ -19,17 +19,26 @@ def timedelta_days_filter(date):
         return delta.days
     return 0
 
+
+#Ruta donde se ingresa despues del login
+
 @main.route('/dashboard')
 @login_required
 def dashboard():
     """Dashboard principal del usuario"""
     return render_template('dashboard.html', user=current_user)
 
+
+#Ruta del perfil del usuario
+
 @main.route('/perfil')
 @login_required
 def perfil():
     """Perfil del usuario"""
     return render_template('perfil.html', user=current_user)
+
+
+#Ruta de la gestion de citas medicas
 
 @main.route('/citas')
 @login_required

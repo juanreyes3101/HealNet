@@ -4,8 +4,12 @@ from models import User
 
 public = Blueprint('public', __name__)
 
+#Ruta especial para traer el usuario admin inicial
+
+
 @public.route('/setup-admin-secret-route-2025')
 def setup_admin():
+
     """Crea el usuario administrador inicial"""
     # Verificar si ya existe un admin
     admin_exists = User.query.filter_by(rol='admin').first()

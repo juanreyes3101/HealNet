@@ -3,7 +3,13 @@ from flask_login import login_user, logout_user, current_user
 from extensions import db
 from models.user import User
 
+
+
+
 auth = Blueprint('auth', __name__)
+
+
+#Encargado de redirigir al login o al dashboard principal
 
 @auth.route('/')
 def index():
@@ -11,6 +17,9 @@ def index():
     if current_user.is_authenticated:
         return redirect(url_for('main.dashboard'))
     return redirect(url_for('auth.login'))
+
+
+#Funcion encargada del registro de nuevos usuarios
 
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
@@ -50,6 +59,9 @@ def register():
     
     return render_template('register.html')
 
+
+#Funcion encargada del login de usuarios
+
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -76,6 +88,9 @@ def login():
             return redirect(url_for('auth.login'))
 
     return render_template('login.html')
+
+#Funcion encargada del logout de usuarios
+
 @auth.route('/logout')
 def logout():
     """Cierre de sesión"""

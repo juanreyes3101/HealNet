@@ -18,7 +18,9 @@ def admin_required(f):
     return decorated_function
 
 
-@admin.route('/dashboard_admin')
+# Ruta donde el admin ve el dashboard con estadísticas
+
+@admin.route('/dashboard')
 @login_required
 @admin_required
 def dashboard():
@@ -52,6 +54,8 @@ def dashboard():
                          proximas_citas=proximas_citas)
 
 
+#Ruta para gestionar usuarios (listar, crear, editar, eliminar)
+
 @admin.route('/usuarios')
 @login_required
 @admin_required
@@ -80,6 +84,8 @@ def usuarios():
                          rol_filter=rol_filter,
                          buscar=buscar)
 
+
+# Ruta para crear un nuevo usuario
 
 @admin.route('/usuario/crear', methods=['GET', 'POST'])
 @login_required
@@ -127,6 +133,9 @@ def crear_usuario():
     return render_template('admin/crear_usuario.html')
 
 
+# Ruta para editar un usuario existente
+
+
 @admin.route('/usuario/<int:user_id>/editar', methods=['GET', 'POST'])
 @login_required
 @admin_required
@@ -158,6 +167,9 @@ def editar_usuario(user_id):
     return render_template('admin/editar_usuario.html', usuario=usuario)
 
 
+# Ruta para eliminar un usuario
+
+
 @admin.route('/usuario/<int:user_id>/eliminar', methods=['POST'])
 @login_required
 @admin_required
@@ -177,6 +189,8 @@ def eliminar_usuario(user_id):
     return redirect(url_for('admin.usuarios'))
 
 
+# Ruta para activar/desactivar un usuario
+
 @admin.route('/usuario/<int:user_id>/toggle-activo', methods=['POST'])
 @login_required
 @admin_required
@@ -191,12 +205,18 @@ def toggle_activo(user_id):
     return redirect(url_for('admin.usuarios'))
 
 
+# Ruta para ver el calendario con todas las citas
+
+
 @admin.route('/calendario')
 @login_required
 @admin_required
 def calendario():
     """Calendario con todas las citas"""
     return render_template('admin/calendario.html')
+
+
+# API para obtener citas en formato JSON para el calendario
 
 
 @admin.route('/api/citas')
