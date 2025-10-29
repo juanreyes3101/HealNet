@@ -34,11 +34,13 @@ def create_app():
     from routes.main import main
     from routes.public import public
     from routes.admin import admin  
+    from routes.citas import citas
 
     app.register_blueprint(auth)
     app.register_blueprint(main)
     app.register_blueprint(public)
     app.register_blueprint(admin)  
+    app.register_blueprint(citas)  # Asegúrate de importar el blueprint citas
         
     return app
 

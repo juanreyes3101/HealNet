@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mis Citas | HealNet</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <style>
+        .citas-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .page-header {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-header h1 {
+            font-size: 32px;
+            color: #1e3a8a;
+            margin-bottom: 5px;
+        }
+
+        .page-header p {
+            color: #64748b;
+        }
+
+        .btn-nueva-cita {
+            padding: 14px 24px;
+            background: #3b82f6;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 700;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-nueva-cita:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .filter-tabs {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            padding: 10px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+            color: #64748b;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-tab:hover {
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+
+        .filter-tab.active {
+            border-color: #3b82f6;
+            background: #3b82f6;
+            color: white;
+        }
+
+        .citas-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .cita-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 25px;
+            align-items: center;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+        }
+
+        .cita-card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            transform: translateY(-2px);
+        }
+
+        .cita-card.pendiente {
+            border-left-color: #fbbf24;
+        }
+
+        .cita-card.confirmada {
+            border-left-color: #3b82f6;
+        }
+
+        .cita-card.completada {
+            border-left-color: #10b981;
+        }
+
+        .cita-card.cancelada {
+            border-left-color: #ef4444;
+            opacity: 0.7;
+        }
+
+        .cita-fecha {
+            text-align: center;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 10px;
+            min-width: 100px;
+        }
+
+        .cita-dia {
+            font-size: 32px;
+            font-weight: 800;
+            color: #1e3a8a;
+            line-height: 1;
+        }
+
+        .cita-mes {
+            font-size: 14px;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .cita-hora {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3b82f6;
+            margin-top: 5px;
+        }
+
+        .cita-info {
+            flex: 1;
+        }
+
+        .cita-doctor {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e3a8a;
+            margin-bottom: 5px;
+        }
+
+        .cita-especialidad {
+            color: #3b82f6;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .cita-motivo {
+            color: #64748b;
+            margin-bottom: 5px;
+        }
+
+        .cita-sintomas {
+            color: #94a3b8;
+            font-size: 14px;
+            font-style: italic;
+        }
+
+        .cita-estado {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .estado-pendiente {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .estado-confirmada {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .estado-completada {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .estado-cancelada {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .cita-acciones {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-cancelar {
+            padding: 10px 20px;
+            background: #fee2e2;
+            color: #991b1b;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-cancelar:hover {
+            background: #fecaca;
+        }
+
+        .empty-state {
+            background: white;
+            padding: 60px 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            font-size: 24px;
+            color: #1e3a8a;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            color: #64748b;
+            margin-bottom: 25px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .modal-header h3 {
+            color: #1e3a8a;
+            margin-bottom: 15px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-confirm {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-cancel-modal {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        @media (max-width: 768px) {
+            .cita-card {
+                grid-template-columns: 1fr;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header>
+        <div class="topbar">
+            <div class="brand-left">
+                <div class="brand-text">
+                    <div class="name">HealNet</div>
+                    <div class="tag">Salud Digital</div>
+                </div>
+            </div>
+
+            <nav class="primary">
+                <a href="{{ url_for('main.dashboard') }}">Inicio</a>
+                <a href="{{ url_for('citas.mis_citas') }}" style="color: var(--primary);">Mis Citas</a>
+                <a href="{{ url_for('main.perfil') }}">Mi Perfil</a>
+            </nav>
+
+            <div class="user-menu">
+                <div>
+                    <div class="user-name">{{ current_user.nombre }}</div>
+                    <div class="user-role">{{ current_user.rol }}</div>
+                </div>
+                <a href="{{ url_for('auth.logout') }}" style="color: #fff; text-decoration: none; font-weight: 700;">Salir →</a>
+            </div>
+        </div>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flashes" style="max-width: 1200px; margin: 20px auto; padding: 0 30px;">
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <div class="citas-container">
+        <!-- HEADER -->
+        <div class="page-header">
+            <div>
+                <h1>📅 Mis Citas Médicas</h1>
+                <p>Gestiona y visualiza todas tus citas médicas</p>
+            </div>
+            {% if current_user.is_paciente() %}
+            <a href="{{ url_for('citas.agendar') }}" class="btn-nueva-cita">
+                ➕ Agendar Nueva Cita
+            </a>
+            {% endif %}
+        </div>
+
+        <!-- FILTROS -->
+        <div class="filter-tabs">
+            <button class="filter-tab active" onclick="filtrarCitas('todas')">
+                Todas las Citas
+            </button>
+            <button class="filter-tab" onclick="filtrarCitas('pendiente')">
+                ⏳ Pendientes
+            </button>
+            <button class="filter-tab" onclick="filtrarCitas('confirmada')">
+                ✅ Confirmadas
+            </button>
+            <button class="filter-tab" onclick="filtrarCitas('completada')">
+                ✔️ Completadas
+            </button>
+            <button class="filter-tab" onclick="filtrarCitas('cancelada')">
+                ❌ Canceladas
+            </button>
+        </div>
+
+        <!-- LISTA DE CITAS -->
+        {% if citas %}
+        <div class="citas-grid" id="citasGrid">
+            {% for cita in citas %}
+            <div class="cita-card {{ cita.estado }}" data-estado="{{ cita.estado }}">
+                <!-- FECHA -->
+                <div class="cita-fecha">
+                    <div class="cita-dia">{{ cita.fecha_hora.strftime('%d') }}</div>
+                    <div class="cita-mes">{{ cita.fecha_hora.strftime('%b') }}</div>
+                    <div class="cita-hora">{{ cita.fecha_hora.strftime('%H:%M') }}</div>
+                </div>
+
+                <!-- INFORMACIÓN -->
+                <div class="cita-info">
+                    {% if current_user.is_doctor() %}
+                        <div class="cita-doctor">👤 {{ cita.paciente.nombre }}</div>
+                        <div class="cita-especialidad">Paciente</div>
+                    {% else %}
+                        <div class="cita-doctor">👨‍⚕️ Dr. {{ cita.doctor.nombre }}</div>
+                        <div class="cita-especialidad">{{ cita.doctor.especialidad }}</div>
+                    {% endif %}
+                    
+                    <div class="cita-motivo">📋 <strong>Motivo:</strong> {{ cita.motivo }}</div>
+                    {% if cita.sintomas %}
+                    <div class="cita-sintomas">{{ cita.sintomas }}</div>
+                    {% endif %}
+                    
+                    <div style="margin-top: 10px;">
+                        <span class="cita-estado estado-{{ cita.estado }}">
+                            {{ cita.estado }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- ACCIONES -->
+                <div class="cita-acciones">
+                    {% if cita.estado == 'pendiente' or cita.estado == 'confirmada' %}
+                        {% if current_user.is_paciente() %}
+                        <button class="btn-cancelar" onclick="confirmarCancelacion({{ cita.id }})">
+                            🗑️ Cancelar Cita
+                        </button>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">📅</div>
+            <h3>No tienes citas agendadas</h3>
+            <p>Comienza agendando tu primera cita médica</p>
+            {% if current_user.is_paciente() %}
+            <a href="{{ url_for('citas.agendar') }}" class="btn-nueva-cita">
+                ➕ Agendar Mi Primera Cita
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- MODAL CANCELAR CITA -->
+    <div id="cancelModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>⚠️ Cancelar Cita</h3>
+            </div>
+            <p>¿Estás seguro de que deseas cancelar esta cita?</p>
+            <p style="color: #64748b; font-size: 14px; margin-top: 10px;">
+                Esta acción no se puede deshacer.
+            </p>
+            <form id="cancelForm" method="POST">
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-confirm">Sí, Cancelar</button>
+                    <button type="button" class="btn btn-cancel-modal" onclick="cerrarModal()">No, Mantener</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function filtrarCitas(estado) {
+            // Actualizar tabs
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Filtrar citas
+            const citas = document.querySelectorAll('.cita-card');
+            citas.forEach(cita => {
+                if (estado === 'todas' || cita.dataset.estado === estado) {
+                    cita.style.display = 'grid';
+                } else {
+                    cita.style.display = 'none';
+                }
+            });
+        }
+
+        function confirmarCancelacion(citaId) {
+            document.getElementById('cancelForm').action = `/citas/${citaId}/cancelar`;
+            document.getElementById('cancelModal').classList.add('active');
+        }
+
+        function cerrarModal() {
+            document.getElementById('cancelModal').classList.remove('active');
+        }
+
+        // Cerrar modal al hacer clic fuera
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+            }
+        }
+    </script>
+</body>
+</html>

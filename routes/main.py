@@ -43,5 +43,6 @@ def perfil():
 @main.route('/citas')
 @login_required
 def citas():
-    """Gestión de citas médicas"""
-    return render_template('citas.html', user=current_user)
+    """Redirigir a mis citas"""
+    from flask import redirect, url_for
+    return redirect(url_for('citas.mis_citas'))
